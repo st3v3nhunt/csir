@@ -29,8 +29,8 @@ async fn main() -> Result<()> {
 
     let result = get_quote(&api_key, &args.symbol).await?;
     match result {
-        Some(r) => println!("Stock {} has price {}.", r.symbol, r.price),
-        None => println!("No result returned for {}", args.symbol),
+        Some(r) => println!("Stock '{}' has price {}.", r.symbol, r.price),
+        None => println!("No result returned for '{}'", args.symbol),
     }
     Ok(())
 }
@@ -42,7 +42,19 @@ async fn get_quote(api_key: &str, symbol: &str) -> Result<Option<ShortQuote>> {
         api_key = api_key
     ))
     .await?;
-    let data = resp.json::<Vec<ShortQuote>>().await?;
-    println!("Response data: {:?}", data);
-    Ok(data.into_iter().nth(0))
+    match resp.status() {
+        reqwest::StatusCode::OK => {
+            let data = resp.json::<Vec<ShortQuote>>().await?;
+            println!("Response data: {:?}", data);
+            Ok(data.into_iter().nth(0))
+        }
+        _ => {
+            println!(
+                "Response for '{}' returned status code '{}' and was not parsable.",
+                symbol,
+                resp.status().as_str()
+            );
+            Ok(None)
+        }
+    }
 }
