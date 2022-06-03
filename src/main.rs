@@ -49,10 +49,7 @@ async fn main() -> Result<()> {
     let args = Args::parse();
     println!("{:?}", args);
     match args.command {
-        Commands::Price { symbol } => match get_price(&symbol).await? {
-            Some(r) => println!("Stock '{}' has price {}.", r.symbol, r.price),
-            None => println!("No result returned for '{}'", symbol),
-        },
+        Commands::Price { symbol } => get_price(&symbol).await?,
         Commands::Quote { symbol } => get_quote(&symbol).await?,
     }
 
@@ -70,47 +67,49 @@ async fn get_quote(symbol: &str) -> Result<()> {
         symbol = symbol
     ))
     .await?;
-    println!("{:#?}", resp);
     match resp.status() {
         reqwest::StatusCode::OK => {
             let data = resp.json::<Vec<ShortQuote>>().await?;
             println!("Response data: {:?}", data);
             let item = data.into_iter().nth(0).unwrap();
-            println!("{}", item.symbol);
+            println!("Stock '{}' has price {}.", item.symbol, item.price);
         }
         _ => {
             println!(
-                "Response for '{}' returned status code '{}' and was not parsable.",
+                "Response for '{}' returned status code '{}'.",
                 symbol,
                 resp.status().as_str()
             );
+            println!("{:#?}", resp);
         }
     }
     Ok(())
 }
 
-async fn get_price(symbol: &str) -> Result<Option<ShortQuote>> {
-    println!("Getting price");
+async fn get_price(symbol: &str) -> Result<()> {
+    println!("Getting price for {}", symbol);
     let api_key = env::var("API_KEY")?;
     let resp = reqwest::get(format!(
         "{URL}/quote-short/{symbol}?apikey={api_key}",
-        symbol = symbol,
-        api_key = api_key
+        api_key = api_key,
+        symbol = symbol
     ))
     .await?;
     match resp.status() {
         reqwest::StatusCode::OK => {
             let data = resp.json::<Vec<ShortQuote>>().await?;
             println!("Response data: {:?}", data);
-            Ok(data.into_iter().nth(0))
+            let item = data.into_iter().nth(0).unwrap();
+            println!("Stock '{}' has price {}.", item.symbol, item.price);
         }
         _ => {
             println!(
-                "Response for '{}' returned status code '{}' and was not parsable.",
+                "Response for '{}' returned status code '{}'.",
                 symbol,
                 resp.status().as_str()
             );
-            Ok(None)
+            println!("{:#?}", resp);
         }
     }
+    Ok(())
 }
