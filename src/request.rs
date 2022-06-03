@@ -18,13 +18,13 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Price of symbol
+    /// Real-time stock price
     Price {
         /// Symbol to retrieve info about
         #[clap(forbid_empty_values = true)]
         symbol: String,
     },
-    /// Company info
+    /// Companies quote
     Quote {
         /// Symbol to retrieve info about
         #[clap(forbid_empty_values = true)]
