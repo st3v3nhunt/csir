@@ -16,8 +16,8 @@ where CSIR will run.
 
 ## To-do list
 
+- [x] Improve file structure
 - [ ] Add tests
-- [ ] Improve file structure
 - [ ] Improve logging
 - [ ] Retrieve historical data
 - [ ] Visualise historical data
