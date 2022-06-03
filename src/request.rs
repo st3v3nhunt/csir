@@ -20,15 +20,15 @@ pub struct Args {
 pub enum Commands {
     /// Real-time stock price
     Price {
-        /// Symbol to retrieve info about
+        /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true)]
-        symbol: String,
+        symbols: Vec<String>,
     },
     /// Companies quote
     Quote {
-        /// Symbol to retrieve info about
+        /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true)]
-        symbol: String,
+        symbols: Vec<String>,
     },
 }
 
@@ -40,26 +40,26 @@ struct ShortQuote {
 
 struct ReqInfo {
     segment: String,
-    symbol: String,
+    symbols: Vec<String>,
 }
 
 pub async fn make_request(commands: &Commands) -> Result<()> {
     let req_info = match commands {
-        Commands::Price { symbol } => ReqInfo {
+        Commands::Price { symbols } => ReqInfo {
             segment: "quote-short".to_string(),
-            symbol: symbol.to_string(),
+            symbols: symbols.to_owned(),
         },
-        Commands::Quote { symbol } => ReqInfo {
+        Commands::Quote { symbols } => ReqInfo {
             segment: "quote".to_string(),
-            symbol: symbol.to_string(),
+            symbols: symbols.to_owned(),
         },
     };
-    println!("Getting price for {}", req_info.symbol);
+    println!("Getting price for {:?}", req_info.symbols);
     let api_key = env::var("API_KEY")?;
     let resp = reqwest::get(format!(
         "{URL}/{segment}/{symbol}?apikey={api_key}",
         segment = req_info.segment,
-        symbol = req_info.symbol
+        symbol = req_info.symbols.join(",")
     ))
     .await?;
     match resp.status() {
@@ -71,8 +71,8 @@ pub async fn make_request(commands: &Commands) -> Result<()> {
         }
         _ => {
             println!(
-                "Response for '{}' returned status code '{}'.",
-                req_info.symbol,
+                "Response for '{:?}' returned status code '{}'.",
+                req_info.symbols,
                 resp.status().as_str()
             );
             println!("{:#?}", resp);
