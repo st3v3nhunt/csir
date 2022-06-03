@@ -48,9 +48,10 @@ async fn main() -> Result<()> {
 
     let args = Args::parse();
     println!("{:?}", args);
-    match args.command {
-        Commands::Price { symbol } => get_price(&symbol).await?,
-        Commands::Quote { symbol } => get_quote(&symbol).await?,
+    // make_request(&args.command).await?;
+    match &args.command {
+        Commands::Price { .. } => make_request(&args.command).await?,
+        Commands::Quote { .. } => make_request(&args.command).await?,
     }
 
     Ok(())
@@ -58,41 +59,28 @@ async fn main() -> Result<()> {
 
 const URL: &str = "https://financialmodelingprep.com/api/v3";
 
-async fn get_quote(symbol: &str) -> Result<()> {
-    println!("Getting company quote for {}", symbol);
-    let api_key = env::var("API_KEY")?;
-    let resp = reqwest::get(format!(
-        "{URL}/quote/{symbol}?apikey={api_key}",
-        api_key = api_key,
-        symbol = symbol
-    ))
-    .await?;
-    match resp.status() {
-        reqwest::StatusCode::OK => {
-            let data = resp.json::<Vec<ShortQuote>>().await?;
-            println!("Response data: {:?}", data);
-            let item = data.into_iter().nth(0).unwrap();
-            println!("Stock '{}' has price {}.", item.symbol, item.price);
-        }
-        _ => {
-            println!(
-                "Response for '{}' returned status code '{}'.",
-                symbol,
-                resp.status().as_str()
-            );
-            println!("{:#?}", resp);
-        }
-    }
-    Ok(())
+struct ReqInfo {
+    segment: String,
+    symbol: String,
 }
 
-async fn get_price(symbol: &str) -> Result<()> {
-    println!("Getting price for {}", symbol);
+async fn make_request(commands: &Commands) -> Result<()> {
+    let req_info = match commands {
+        Commands::Price { symbol } => ReqInfo {
+            segment: "quote-short".to_string(),
+            symbol: symbol.to_string(),
+        },
+        Commands::Quote { symbol } => ReqInfo {
+            segment: "quote".to_string(),
+            symbol: symbol.to_string(),
+        },
+    };
+    println!("Getting price for {}", req_info.symbol);
     let api_key = env::var("API_KEY")?;
     let resp = reqwest::get(format!(
-        "{URL}/quote-short/{symbol}?apikey={api_key}",
-        api_key = api_key,
-        symbol = symbol
+        "{URL}/{segment}/{symbol}?apikey={api_key}",
+        segment = req_info.segment,
+        symbol = req_info.symbol
     ))
     .await?;
     match resp.status() {
@@ -105,7 +93,7 @@ async fn get_price(symbol: &str) -> Result<()> {
         _ => {
             println!(
                 "Response for '{}' returned status code '{}'.",
-                symbol,
+                req_info.symbol,
                 resp.status().as_str()
             );
             println!("{:#?}", resp);
