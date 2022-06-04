@@ -8,7 +8,7 @@ const URL: &str = "https://financialmodelingprep.com/api/v3";
 
 #[derive(Debug, Parser)]
 #[clap(author = "st3v3nhunt", version, about)]
-/// CLI Sotck Info Retriever
+/// CLI Stock Info Retriever
 pub struct Args {
     #[clap(short, long, parse(from_occurrences))]
     verbosity: usize,
@@ -39,12 +39,6 @@ pub enum Commands {
     },
 }
 
-#[derive(Debug, Deserialize)]
-struct ShortQuote {
-    symbol: String,
-    price: f64,
-}
-
 async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Response, anyhow::Error> {
     let api_key = env::var("API_KEY")?;
     Ok(reqwest::get(format!(
@@ -52,6 +46,27 @@ async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Response, 
         symbols = symbols.join(",")
     ))
     .await?)
+}
+
+#[derive(Debug, Deserialize)]
+struct ShortQuote {
+    symbol: String,
+    price: f64,
+}
+
+#[derive(Debug, Deserialize)]
+struct Quote {
+    exchange: String,
+    name: String,
+    price: f64,
+    symbol: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct PriceChange {
+    #[serde(alias = "1D")]
+    one_day: f64,
+    symbol: String,
 }
 
 pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
@@ -86,19 +101,4 @@ pub async fn get_quote(symbols: &Vec<String>) -> Result<()> {
         item.name, item.symbol, item.exchange, item.price
     );
     Ok(())
-}
-
-#[derive(Debug, Deserialize)]
-struct Quote {
-    exchange: String,
-    name: String,
-    price: f64,
-    symbol: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct PriceChange {
-    #[serde(alias = "1D")]
-    one_day: f64,
-    symbol: String,
 }
