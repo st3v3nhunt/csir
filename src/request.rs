@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use reqwest::Response;
 use serde::Deserialize;
 use serde_json::Value;
 use std::env;
@@ -45,14 +46,17 @@ pub struct ShortQuote {
     price: f64,
 }
 
-pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
+async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Response, anyhow::Error> {
     let api_key = env::var("API_KEY")?;
-    let resp = reqwest::get(format!(
+    Ok(reqwest::get(format!(
         "{URL}/{segment}/{symbols}?apikey={api_key}",
-        segment = "quote-short",
         symbols = symbols.join(",")
     ))
-    .await?;
+    .await?)
+}
+
+pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
+    let resp = make_request("quote-short", symbols).await?;
     let data = resp.json::<Vec<ShortQuote>>().await?;
     println!("Response data: {:?}", data);
     let item = data.into_iter().nth(0).unwrap();
@@ -61,13 +65,7 @@ pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
 }
 
 pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {
-    let api_key = env::var("API_KEY")?;
-    let resp = reqwest::get(format!(
-        "{URL}/{segment}/{symbols}?apikey={api_key}",
-        segment = "stock-price-change",
-        symbols = symbols.join(",")
-    ))
-    .await?;
+    let resp = make_request("stock-price-change", symbols).await?;
     let data = resp.json::<Vec<Value>>().await?;
     println!("Response data: {:?}", data);
     let item = data.into_iter().nth(0).unwrap();
@@ -79,13 +77,7 @@ pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {
 }
 
 pub async fn get_quote(symbols: &Vec<String>) -> Result<()> {
-    let api_key = env::var("API_KEY")?;
-    let resp = reqwest::get(format!(
-        "{URL}/{segment}/{symbols}?apikey={api_key}",
-        segment = "quote",
-        symbols = symbols.join(",")
-    ))
-    .await?;
+    let resp = make_request("quote", symbols).await?;
     let data = resp.json::<Vec<ShortQuote>>().await?;
     println!("Response data: {:?}", data);
     let item = data.into_iter().nth(0).unwrap();
