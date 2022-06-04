@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use serde::Deserialize;
+use serde_json::Value;
 use std::env;
 
 const URL: &str = "https://financialmodelingprep.com/api/v3";
@@ -24,6 +25,12 @@ pub enum Commands {
         #[clap(forbid_empty_values = true)]
         symbols: Vec<String>,
     },
+    /// Percentage price change for multiple symbols
+    PriceChange {
+        /// Symbol(s) to retrieve info about
+        #[clap(forbid_empty_values = true)]
+        symbols: Vec<String>,
+    },
     /// Companies quote
     Quote {
         /// Symbol(s) to retrieve info about
@@ -33,50 +40,55 @@ pub enum Commands {
 }
 
 #[derive(Deserialize, Debug)]
-struct ShortQuote {
+pub struct ShortQuote {
     symbol: String,
     price: f64,
 }
 
-struct ReqInfo {
-    segment: String,
-    symbols: Vec<String>,
-}
-
-pub async fn make_request(commands: &Commands) -> Result<()> {
-    let req_info = match commands {
-        Commands::Price { symbols } => ReqInfo {
-            segment: "quote-short".to_string(),
-            symbols: symbols.to_owned(),
-        },
-        Commands::Quote { symbols } => ReqInfo {
-            segment: "quote".to_string(),
-            symbols: symbols.to_owned(),
-        },
-    };
-    println!("Getting price for {:?}", req_info.symbols);
+pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
     let api_key = env::var("API_KEY")?;
     let resp = reqwest::get(format!(
-        "{URL}/{segment}/{symbol}?apikey={api_key}",
-        segment = req_info.segment,
-        symbol = req_info.symbols.join(",")
+        "{URL}/{segment}/{symbols}?apikey={api_key}",
+        segment = "quote-short",
+        symbols = symbols.join(",")
     ))
     .await?;
-    match resp.status() {
-        reqwest::StatusCode::OK => {
-            let data = resp.json::<Vec<ShortQuote>>().await?;
-            println!("Response data: {:?}", data);
-            let item = data.into_iter().nth(0).unwrap();
-            println!("Stock '{}' has price {}.", item.symbol, item.price);
-        }
-        _ => {
-            println!(
-                "Response for '{:?}' returned status code '{}'.",
-                req_info.symbols,
-                resp.status().as_str()
-            );
-            println!("{:#?}", resp);
-        }
-    }
+    let data = resp.json::<Vec<ShortQuote>>().await?;
+    println!("Response data: {:?}", data);
+    let item = data.into_iter().nth(0).unwrap();
+    println!("Stock '{}' has price {}.", item.symbol, item.price);
+    Ok(())
+}
+
+pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {
+    let api_key = env::var("API_KEY")?;
+    let resp = reqwest::get(format!(
+        "{URL}/{segment}/{symbols}?apikey={api_key}",
+        segment = "stock-price-change",
+        symbols = symbols.join(",")
+    ))
+    .await?;
+    let data = resp.json::<Vec<Value>>().await?;
+    println!("Response data: {:?}", data);
+    let item = data.into_iter().nth(0).unwrap();
+    println!(
+        "Stock '{}' has changed price by {}% over the course of 1 day.",
+        item["symbol"], item["1D"]
+    );
+    Ok(())
+}
+
+pub async fn get_quote(symbols: &Vec<String>) -> Result<()> {
+    let api_key = env::var("API_KEY")?;
+    let resp = reqwest::get(format!(
+        "{URL}/{segment}/{symbols}?apikey={api_key}",
+        segment = "quote",
+        symbols = symbols.join(",")
+    ))
+    .await?;
+    let data = resp.json::<Vec<ShortQuote>>().await?;
+    println!("Response data: {:?}", data);
+    let item = data.into_iter().nth(0).unwrap();
+    println!("Stock '{}' has price {}.", item.symbol, item.price);
     Ok(())
 }

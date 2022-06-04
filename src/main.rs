@@ -18,8 +18,9 @@ async fn main() -> Result<()> {
     let args = Args::parse();
     println!("{:?}", args);
     match &args.command {
-        Commands::Price { .. } => request::make_request(&args.command).await?,
-        Commands::Quote { .. } => request::make_request(&args.command).await?,
+        Commands::Price { symbols } => request::get_price(&symbols).await?,
+        Commands::Quote { symbols } => request::get_quote(&symbols).await?,
+        Commands::PriceChange { symbols } => request::get_price_change(&symbols).await?,
     }
 
     Ok(())
