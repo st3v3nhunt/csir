@@ -66,13 +66,14 @@ pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
 
 pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {
     let resp = make_request("stock-price-change", symbols).await?;
-    let data = resp.json::<Vec<Value>>().await?;
-    println!("Response data: {:?}", data);
-    let item = data.into_iter().nth(0).unwrap();
-    println!(
-        "Stock '{}' has changed price by {}% over the course of 1 day.",
-        item["symbol"], item["1D"]
-    );
+    let results = resp.json::<Vec<Value>>().await?;
+    println!("Response data: {:?}", results);
+    for item in results {
+        println!(
+            "Stock '{}' has changed price by {}% over the course of 1 day.",
+            item["symbol"], item["1D"]
+        );
+    }
     Ok(())
 }
 
