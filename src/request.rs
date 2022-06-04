@@ -2,7 +2,6 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use reqwest::Response;
 use serde::Deserialize;
-use serde_json::Value;
 use std::env;
 
 const URL: &str = "https://financialmodelingprep.com/api/v3";
@@ -41,7 +40,7 @@ pub enum Commands {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ShortQuote {
+struct ShortQuote {
     symbol: String,
     price: f64,
 }
@@ -66,12 +65,12 @@ pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
 
 pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {
     let resp = make_request("stock-price-change", symbols).await?;
-    let results = resp.json::<Vec<Value>>().await?;
+    let results = resp.json::<Vec<PriceChange>>().await?;
     println!("Response data: {:?}", results);
     for item in results {
         println!(
-            "Stock '{}' has changed price by {}% over the course of 1 day.",
-            item["symbol"], item["1D"]
+            "Stock {} has changed price by {}% over the course of 1 day.",
+            item.symbol, item.one_day
         );
     }
     Ok(())
@@ -94,5 +93,12 @@ struct Quote {
     exchange: String,
     name: String,
     price: f64,
+    symbol: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct PriceChange {
+    #[serde(alias = "1D")]
+    one_day: f64,
     symbol: String,
 }
