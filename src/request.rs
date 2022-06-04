@@ -18,7 +18,7 @@ pub struct Args {
     pub command: Commands,
 }
 
-#[derive(Subcommand, Debug)]
+#[derive(Debug, Subcommand)]
 pub enum Commands {
     /// Real-time stock price
     Price {
@@ -40,7 +40,7 @@ pub enum Commands {
     },
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ShortQuote {
     symbol: String,
     price: f64,
@@ -79,9 +79,20 @@ pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {
 
 pub async fn get_quote(symbols: &Vec<String>) -> Result<()> {
     let resp = make_request("quote", symbols).await?;
-    let data = resp.json::<Vec<ShortQuote>>().await?;
+    let data = resp.json::<Vec<Quote>>().await?;
     println!("Response data: {:?}", data);
     let item = data.into_iter().nth(0).unwrap();
-    println!("Stock '{}' has price {}.", item.symbol, item.price);
+    println!(
+        "{} with symbol {} trading on {} has price of ${}.",
+        item.name, item.symbol, item.exchange, item.price
+    );
     Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+struct Quote {
+    exchange: String,
+    name: String,
+    price: f64,
+    symbol: String,
 }
