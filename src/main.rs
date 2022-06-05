@@ -16,6 +16,7 @@ async fn main() -> Result<()> {
     check_env();
 
     let args = Args::parse();
+    // TODO: only print when debug level set
     println!("{:?}", args);
     match &args.command {
         Commands::Price { symbols } => request::get_price(&symbols).await?,

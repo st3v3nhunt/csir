@@ -18,6 +18,7 @@ where CSIR will run.
 
 - [x] Improve file structure
 - [ ] Add tests
+- [ ] Consider validating symbols
 - [ ] Improve logging
 - [ ] Retrieve historical data
 - [ ] Visualise historical data
