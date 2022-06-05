@@ -8,8 +8,8 @@ use std::env;
 const URL: &str = "https://financialmodelingprep.com/api/v3";
 
 #[derive(Debug, Parser)]
-#[clap(author = "st3v3nhunt", version, about)]
-/// CLI Stock Info Retriever
+#[clap(about = "CLI Stock Info Retriever")]
+#[clap(author = "st3v3nhunt", version)]
 pub struct Args {
     #[clap(short, long, parse(from_occurrences))]
     verbosity: usize,
@@ -20,19 +20,19 @@ pub struct Args {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    /// Real-time stock price
+    /// Real-time price of symbol(s)
     Price {
         /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true, default_value = "", max_values = 1)]
         symbols: Vec<String>,
     },
-    /// Percentage price change for multiple symbols
+    /// Percentage price change of symbol(s)
     PriceChange {
         /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true, default_value = "")]
         symbols: Vec<String>,
     },
-    /// Companies quote
+    /// Full quote for symbol(s)
     Quote {
         /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true, default_value = "", max_values = 1)]

@@ -20,6 +20,7 @@ where CSIR will run.
 - [ ] Add tests
 - [ ] Consider validating symbols
 - [ ] Improve logging
+- [ ] Print out full response when specific setting is provided
 - [ ] Retrieve historical data
 - [ ] Visualise historical data
 - [ ] Add CI via GitHub Actions
