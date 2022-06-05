@@ -10,7 +10,14 @@ fn get_key(period: &Period) -> String {
         Period::D1 => "1D".to_string(),
         Period::D5 => "5D".to_string(),
         Period::M1 => "1M".to_string(),
-        // Period::M% => "5M".to_string(),
+        Period::M3 => "3M".to_string(),
+        Period::M6 => "6M".to_string(),
+        Period::YTD => "YTD".to_string(),
+        Period::Y1 => "1Y".to_string(),
+        Period::Y3 => "3Y".to_string(),
+        Period::Y5 => "5Y".to_string(),
+        Period::Y10 => "10".to_string(),
+        Period::MAX => "MAX".to_string(),
     }
 }
 
@@ -30,7 +37,10 @@ pub async fn get_price_change(symbols: &Vec<String>, period: &Period) -> Result<
             }
             _ => {
                 let period_key = get_key(period);
-                for (k, v) in (&result).into_iter().filter(|(x, _)| (*x).eq(&period_key)) {
+                for (k, v) in (&result)
+                    .into_iter()
+                    .filter(|(x, _)| (*x).to_uppercase().eq(&period_key))
+                {
                     println!("{symbol} has changed price by {v}% over the course of {k}.");
                 }
             }

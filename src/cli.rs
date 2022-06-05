@@ -51,4 +51,20 @@ pub enum Period {
     D5,
     #[clap(name = "1M")]
     M1,
+    #[clap(name = "3M")]
+    M3,
+    #[clap(name = "6M")]
+    M6,
+    #[clap(name = "YTD")]
+    YTD,
+    #[clap(name = "1Y")]
+    Y1,
+    #[clap(name = "3Y")]
+    Y3,
+    #[clap(name = "5Y")]
+    Y5,
+    #[clap(name = "10Y")]
+    Y10,
+    #[clap(name = "MAX")]
+    MAX,
 }
