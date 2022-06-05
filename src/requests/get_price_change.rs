@@ -39,7 +39,7 @@ pub async fn get_price_change(symbols: &Vec<String>, period: &Period) -> Result<
                 let period_key = get_key(period);
                 for (k, v) in (&result)
                     .into_iter()
-                    .filter(|(x, _)| (*x).to_uppercase().eq(&period_key))
+                    .filter(|(x, _)| x.to_uppercase().eq(&period_key))
                 {
                     println!("{symbol} has changed price by {v}% over the course of {k}.");
                 }
