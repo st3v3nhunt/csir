@@ -21,7 +21,13 @@ pub enum Commands {
     },
     /// Percentage price change of symbol(s)
     PriceChange {
-        #[clap(arg_enum, short, long)]
+        #[clap(
+            arg_enum,
+            default_value = "ALL",
+            help = "Period of time for change",
+            short,
+            long
+        )]
         period: Period,
         /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true, default_value = "")]
@@ -37,6 +43,8 @@ pub enum Commands {
 
 #[derive(ArgEnum, Clone, Debug)]
 pub enum Period {
+    #[clap(name = "ALL")]
+    ALL,
     #[clap(name = "1D")]
     D1,
     #[clap(name = "5D")]
