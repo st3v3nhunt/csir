@@ -22,7 +22,9 @@ async fn main() -> Result<()> {
     match &args.command {
         Commands::Price { symbols } => requests::get_price(&symbols).await?,
         Commands::Quote { symbols } => requests::get_quote(&symbols).await?,
-        Commands::PriceChange { symbols } => requests::get_price_change(&symbols).await?,
+        Commands::PriceChange { period, symbols } => {
+            requests::get_price_change(symbols, period).await?
+        }
     }
 
     Ok(())

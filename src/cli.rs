@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{ArgEnum, Parser, Subcommand};
 
 #[derive(Debug, Parser)]
 #[clap(about = "CLI Stock Info Retriever")]
@@ -21,6 +21,8 @@ pub enum Commands {
     },
     /// Percentage price change of symbol(s)
     PriceChange {
+        #[clap(arg_enum, short, long)]
+        period: Period,
         /// Symbol(s) to retrieve info about
         #[clap(forbid_empty_values = true, default_value = "")]
         symbols: Vec<String>,
@@ -31,4 +33,14 @@ pub enum Commands {
         #[clap(forbid_empty_values = true, default_value = "", max_values = 1)]
         symbols: Vec<String>,
     },
+}
+
+#[derive(ArgEnum, Clone, Debug)]
+pub enum Period {
+    #[clap(name = "1D")]
+    D1,
+    #[clap(name = "5D")]
+    D5,
+    #[clap(name = "1M")]
+    M1,
 }
