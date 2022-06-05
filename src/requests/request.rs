@@ -14,7 +14,6 @@ pub async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Respon
     let resp = reqwest::get(&url).await?;
     let status = resp.status();
     if status == 200 {
-        println!("OK");
         Ok(resp)
     } else {
         let data: Value = resp.json().await?;
