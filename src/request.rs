@@ -40,7 +40,7 @@ pub enum Commands {
     },
 }
 
-async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Response> {
+pub async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Response> {
     let api_key = env::var("API_KEY")?;
     let url = format!(
         "{URL}/{segment}/{symbols}?apikey={api_key}",
@@ -63,12 +63,6 @@ async fn make_request(segment: &str, symbols: &Vec<String>) -> Result<Response> 
 }
 
 #[derive(Debug, Deserialize)]
-struct ShortQuote {
-    symbol: String,
-    price: f64,
-}
-
-#[derive(Debug, Deserialize)]
 struct Quote {
     exchange: String,
     name: String,
@@ -83,20 +77,8 @@ struct PriceChange {
     symbol: String,
 }
 
-fn get_error(function: &str, symbols: &Vec<String>) -> String {
+pub fn get_error(function: &str, symbols: &Vec<String>) -> String {
     format!("unable to get {} for {}", function, symbols.join(","))
-}
-
-pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
-    let resp = make_request("quote-short", symbols).await?;
-    let results = resp
-        .json::<Vec<ShortQuote>>()
-        .await
-        .with_context(|| get_error("price", symbols))?;
-    for item in results {
-        println!("Stock '{}' has price {}.", item.symbol, item.price);
-    }
-    Ok(())
 }
 
 pub async fn get_price_change(symbols: &Vec<String>) -> Result<()> {

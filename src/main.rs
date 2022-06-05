@@ -3,8 +3,10 @@ use clap::Parser;
 use dotenv::dotenv;
 use std::env;
 
+use crate::requests::get_price;
 use request::{Args, Commands};
 mod request;
+mod requests;
 
 fn check_env() {
     dotenv().ok();
@@ -19,7 +21,7 @@ async fn main() -> Result<()> {
     // TODO: only print when debug level set
     println!("{:?}", args);
     match &args.command {
-        Commands::Price { symbols } => request::get_price(&symbols).await?,
+        Commands::Price { symbols } => get_price(&symbols).await?,
         Commands::Quote { symbols } => request::get_quote(&symbols).await?,
         Commands::PriceChange { symbols } => request::get_price_change(&symbols).await?,
     }
