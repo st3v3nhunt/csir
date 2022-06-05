@@ -1,12 +1,11 @@
+mod cli;
+mod requests;
+
 use anyhow::Result;
 use clap::Parser;
+use cli::{Args, Commands};
 use dotenv::dotenv;
 use std::env;
-
-use crate::requests::get_price;
-use request::{Args, Commands};
-mod request;
-mod requests;
 
 fn check_env() {
     dotenv().ok();
@@ -21,9 +20,9 @@ async fn main() -> Result<()> {
     // TODO: only print when debug level set
     println!("{:?}", args);
     match &args.command {
-        Commands::Price { symbols } => get_price(&symbols).await?,
-        Commands::Quote { symbols } => request::get_quote(&symbols).await?,
-        Commands::PriceChange { symbols } => request::get_price_change(&symbols).await?,
+        Commands::Price { symbols } => requests::get_price(&symbols).await?,
+        Commands::Quote { symbols } => requests::get_quote(&symbols).await?,
+        Commands::PriceChange { symbols } => requests::get_price_change(&symbols).await?,
     }
 
     Ok(())
