@@ -15,7 +15,7 @@ pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
         .await
         .with_context(|| errors::get_error("price", symbols))?;
     for item in results {
-        println!("{} has price {}.", item.symbol, item.price);
+        println!("{} has price ${}.", item.symbol, item.price);
     }
     Ok(())
 }
