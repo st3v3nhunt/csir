@@ -67,4 +67,6 @@ pub enum Commands {
         #[clap(forbid_empty_values = true, default_value = "", max_values = 1)]
         symbols: Vec<String>,
     },
+    /// Number of remaining calls for the current 24 hour period
+    RemainingCalls,
 }

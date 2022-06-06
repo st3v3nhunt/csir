@@ -10,6 +10,7 @@ use std::env;
 fn check_env() {
     dotenv().ok();
     env::var("API_KEY").expect("API_KEY must be set");
+    env::var("REMAINING_CALLS_API_URL").expect("REMAINING_CALLS_API_URL must be set");
 }
 
 #[tokio::main]
@@ -25,6 +26,7 @@ async fn main() -> Result<()> {
         Commands::PriceChange { period, symbols } => {
             requests::get_price_change(symbols, period).await?
         }
+        Commands::RemainingCalls => requests::get_remaining_calls().await?,
     }
 
     Ok(())
