@@ -12,8 +12,8 @@ struct Quote {
 
 pub async fn get_quote(symbols: &Vec<String>) -> Result<()> {
     let resp = request::make_request("quote", symbols).await?;
-    let results = resp
-        .json::<Vec<Quote>>()
+    let results: Vec<Quote> = resp
+        .json()
         .await
         .with_context(|| errors::get_error("quote", symbols))?;
     for item in results {

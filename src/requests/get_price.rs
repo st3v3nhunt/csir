@@ -10,8 +10,8 @@ struct ShortQuote {
 
 pub async fn get_price(symbols: &Vec<String>) -> Result<()> {
     let resp = request::make_request("quote-short", symbols).await?;
-    let results = resp
-        .json::<Vec<ShortQuote>>()
+    let results: Vec<ShortQuote> = resp
+        .json()
         .await
         .with_context(|| errors::get_error("price", symbols))?;
     for item in results {
