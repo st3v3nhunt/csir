@@ -11,6 +11,34 @@ pub struct Args {
     pub command: Commands,
 }
 
+#[derive(ArgEnum, Clone, Debug)]
+pub enum Period {
+    #[clap(name = "ALL")]
+    ALL,
+    #[clap(name = "1D")]
+    D1,
+    #[clap(name = "5D")]
+    D5,
+    #[clap(name = "1M")]
+    M1,
+    #[clap(name = "3M")]
+    M3,
+    #[clap(name = "6M")]
+    M6,
+    #[clap(name = "YTD")]
+    YTD,
+    #[clap(name = "1Y")]
+    Y1,
+    #[clap(name = "3Y")]
+    Y3,
+    #[clap(name = "5Y")]
+    Y5,
+    #[clap(name = "10Y")]
+    Y10,
+    #[clap(name = "MAX")]
+    MAX,
+}
+
 #[derive(Debug, Subcommand)]
 pub enum Commands {
     /// Real-time price of symbol(s)
@@ -39,32 +67,4 @@ pub enum Commands {
         #[clap(forbid_empty_values = true, default_value = "", max_values = 1)]
         symbols: Vec<String>,
     },
-}
-
-#[derive(ArgEnum, Clone, Debug)]
-pub enum Period {
-    #[clap(name = "ALL")]
-    ALL,
-    #[clap(name = "1D")]
-    D1,
-    #[clap(name = "5D")]
-    D5,
-    #[clap(name = "1M")]
-    M1,
-    #[clap(name = "3M")]
-    M3,
-    #[clap(name = "6M")]
-    M6,
-    #[clap(name = "YTD")]
-    YTD,
-    #[clap(name = "1Y")]
-    Y1,
-    #[clap(name = "3Y")]
-    Y3,
-    #[clap(name = "5Y")]
-    Y5,
-    #[clap(name = "10Y")]
-    Y10,
-    #[clap(name = "MAX")]
-    MAX,
 }
