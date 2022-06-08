@@ -16,14 +16,15 @@ having a `.env` file in the directory (or a parent directory).
 
 ### Env vars
 
-| Name                      | Description                                                                                            |
-| ----                      | -----------                                                                                            |
-| `API_KEY`                 | apiKey for FMP, get one [here](https://site.financialmodelingprep.com/developer/docs/pricing/)         |
-| `REMAINING_CALLS_API_URL` | URL for API used to retrieve the number of calls remaining for the `API_KEY` within the 24 hour period |
+| Name                      | Description                                                                                               |
+| ----                      | -----------                                                                                               |
+| `API_KEY`                 | apiKey for FMP, get one [here](https://site.financialmodelingprep.com/developer/docs/pricing/)            |
+| `REMAINING_CALLS_API_URL` | URL for API used to retrieve the number of calls remaining for the `API_KEY` within the 24 hour period    |
+| `RUST_LOG`                | Level of logging to enable. Options are from [log::Level](https://docs.rs/log/latest/log/enum.Level.html) |
 
 ## To-do
 
-### General / QOL improvements
+### General & QOL improvements
 
 - [ ] Add tests
 - [ ] Check test coverage for some minimum
@@ -32,7 +33,6 @@ having a `.env` file in the directory (or a parent directory).
 - [ ] Consider an 'admin' subcommand where commands like get-remaining-calls
   can be grouped
 - [ ] Consider validating symbols - check against a search
-- [ ] Improve logging - log by level, set level by CLI option
 - [ ] Print out full response when specific setting is provided
 
 ### Features
@@ -42,6 +42,7 @@ having a `.env` file in the directory (or a parent directory).
 
 ## Done
 
+- [x] Improve logging - log by level, set level by CLI option
 - [x] Improve file structure
 - [x] Get price change for symbols
 - [x] Get remaining API calls
