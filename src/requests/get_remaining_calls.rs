@@ -1,3 +1,4 @@
+use ansi_term::Colour::Fixed;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::env;
@@ -28,8 +29,9 @@ pub async fn get_remaining_calls() -> Result<()> {
         .await
         .with_context(|| "unable to parse response body")?;
     println!(
-        "API key '{api_key}' has {:?} calls remaining.",
-        result.result
+        "API key '{}' has {} calls remaining.",
+        Fixed(13).paint(api_key),
+        Fixed(9).paint(result.result.to_string())
     );
     Ok(())
 }

@@ -1,5 +1,6 @@
 use crate::cli::Period;
 use crate::requests::{errors, request};
+use ansi_term::Colour::Fixed;
 use anyhow::{Context, Result};
 use indexmap::IndexMap;
 use serde_json::Value;
@@ -21,18 +22,44 @@ fn get_key(period: &Period) -> String {
     }
 }
 
+fn price_change_colour(v: &Value) -> ansi_term::ANSIGenericString<str> {
+    let v_i = v.as_f64().unwrap_or_else(|| f64::MAX);
+    if v_i > 0. {
+        // Bright Green
+        Fixed(10).paint(v.to_string())
+    } else if v_i < 0. {
+        // Bright Red
+        Fixed(9).paint(v.to_string())
+    } else {
+        // Bright Yellow
+        Fixed(11).paint(v.to_string())
+    }
+}
+
+fn print_price_change(symbol: &str, v: &Value, k: &str) {
+    println!(
+        "{} has changed price by {}% over the course of {}.",
+        // Bright Blue
+        Fixed(12).paint(symbol),
+        price_change_colour(v),
+        // Bright Magenta
+        Fixed(13).paint(k)
+    );
+}
+
 pub async fn get_price_change(symbols: &Vec<String>, period: &Period) -> Result<()> {
+    let symbol_key = "symbol";
     let resp = request::make_request("stock-price-change", symbols).await?;
     let results: Vec<IndexMap<String, Value>> = resp
         .json()
         .await
         .with_context(|| errors::get_error("stock price change", symbols))?;
     for result in results {
-        let symbol = &result["symbol"];
+        let symbol = &result[symbol_key].to_string();
         match period {
             Period::ALL => {
-                for (k, v) in (&result).into_iter().filter(|(x, _)| (*x).ne("symbol")) {
-                    println!("{symbol} has changed price by {v}% over the course of {k}.");
+                for (k, v) in (&result).into_iter().filter(|(x, _)| (*x).ne(symbol_key)) {
+                    print_price_change(symbol, v, k);
                 }
             }
             _ => {
@@ -41,7 +68,7 @@ pub async fn get_price_change(symbols: &Vec<String>, period: &Period) -> Result<
                     .into_iter()
                     .filter(|(x, _)| x.to_uppercase().eq(&period_key))
                 {
-                    println!("{symbol} has changed price by {v}% over the course of {k}.");
+                    print_price_change(symbol, v, k);
                 }
             }
         }
